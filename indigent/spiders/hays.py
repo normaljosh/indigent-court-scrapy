@@ -89,10 +89,7 @@ class HaysSpider(scrapy.Spider):
             "NodeDesc": "All%20Courts",
         }
         url = f"{self.calendar_page_url}?{urlencode(calendar_query)}"
-        return Request(
-            url=url,
-            callback=self.use_search_form,
-        )
+        return Request(url=url, callback=self.use_search_form,)
 
     def use_search_form(self, response):
         viewstate = response.css("#__VIEWSTATE").attrib["value"]
@@ -116,7 +113,12 @@ class HaysSpider(scrapy.Spider):
             )
 
     def parse(self, response, date_string):
-        """Just save the"""
+        """
+        Just save the search result page as a file.
+
+        To be replaced by a function that follows the links to the cases,
+        with another callback function that parses the case pages.
+        """
         if not os.path.exists("case_data"):
             os.mkdir("case_data")
         date_for_filename = dt.datetime.strptime(date_string, "%m/%d/%Y").strftime(
