@@ -1,0 +1,53 @@
+
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="CSS/PublicAccess.css">
+  </head>
+  
+  <body>
+    <form id="SearchParameters" action="CourtCalendarSearchResults.aspx" method="post" style="display:none;">
+      <input id="SearchType" name="SearchType" type="hidden" value='JUDOFFC'/>   <!-- The type of search this is: by case or by party -->
+      <input id="SearchMode" name="SearchMode" type="hidden" value='JUDOFFC'/>   <!-- The specific search mode of SearchType - like Search Case by CaseNumber -->
+      <input id="SearchBy" name="SearchBy" type="hidden" value='3'/>
+      <input id="NameTypeKy" name="NameTypeKy" type="hidden" value=''/>
+      <input id="CaseCategories" name="CaseCategories" type="hidden" value='CR'/>
+      <input id="CourtCaseSearchValue" name="CourtCaseSearchValue" type="hidden" value=''/>
+      <input id="UseSoundex" name="UseSoundex" type="hidden" value=''/>
+      <input id="LastName" name="LastName" type="hidden" value=''/>
+      <input id="FirstName" name="FirstName" type="hidden" value=''/>
+      <input id="MiddleName" name="MiddleName" type="hidden" value=''/>
+      <input id="cboJudOffc" name="cboJudOffc" type="hidden" value='55054'/>
+      <input id="cboMagist" name="cboMagist" type="hidden" value=''/>
+      <input id="DateSettingOnAfter" name="DateSettingOnAfter" type="hidden" value='8/21/2021'/>
+      <input id="DateSettingOnBefore" name="DateSettingOnBefore" type="hidden" value='8/21/2021'/>
+      <input id="SearchParams" name="SearchParams" type="hidden" value='' />
+      <input id="SortType" name="SortType" type="hidden" value=''/>
+    </form>    
+    <?xml version="1.0" encoding="utf-8"?><table cellspacing="0" cellpadding="0" width="100%" border="0" style="table-layout: fixed; margin:0px; padding:0px;" xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:PublicAccessUser="urn:PublicAccessUser"><tr><td class="ssHeaderTitleBanner">Court Calendar Results</td></tr></table><table cellspacing="0" cellpadding="0" width="100%" border="0" style="table-layout: fixed; margin:0px; padding:0px;" xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:PublicAccessUser="urn:PublicAccessUser"><tr><td bgcolor="#000000" height="20px"><table cellspacing="0" cellpadding="0" width="100%" border="0"><tr><td align="left" style="padding-left: 5px"><font size="1"><a class="ssBlackNavBarHyperlink" href="#MainContent">Skip to Main Content</a>&nbsp;<a class="ssBlackNavBarHyperlink" href="logout.aspx">Logout</a>&nbsp;<a class="ssBlackNavBarHyperlink" href="MyAccount.aspx?ReturnURL=default.aspx">My Account</a>&nbsp;<a class="ssBlackNavBarHyperlink" href="default.aspx">Search Menu</a>&nbsp;<a class="ssBlackNavBarHyperlink" href="Search.aspx?ID=900">New Calendar Search</a>&nbsp;<a class="ssBlackNavBarHyperlink" href="Search.aspx?ID=900&amp;RefineSearch=1">Refine Search</a>&nbsp;</font></td><td align="center" class="ssBlackNavBarLocation"></td><td align="right" style="padding-right: 10px"><table cellspacing="0" cellpadding="0" border="0"><tr><td class="ssBlackNavBarLocation">
+                          Location : All Courts</td><td><font size="1"><a class="ssBlackNavBarHyperlink" target="_blank" href="help.aspx">Help</a></font></td></tr></table></td></tr></table></td></tr></table><a id="MainContent" name="MainContent" tabindex="-1" xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:user="http://www.tylertechnologies.com"></a><table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed; font-size: 8pt; font-family: arial" xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:user="http://www.tylertechnologies.com"><tr><td style="width:85px;"><b>Record Count: </b></td><td style="text-align:left;"><b>0</b></td></tr><tr><td id="SearchParamList" colspan="2"></td></tr></table><table border="0" cellpadding="1" cellspacing="0" width="100%" style="table-layout: fixed; font-size: 8pt; font-family: arial" xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:user="http://www.tylertechnologies.com"><col width="25%" /><col width="35%" /><col width="20%" /><col width="20%" /><tr><td colspan="4"><table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed; font-size: 8pt; font-family: arial"><col width="25%" /><col width="35%" /><col width="20%" /><col width="20%" /><tr style="padding-top:5px;"><td colspan="4"><label for="SortBy" style="font-weight:bold;">Sort By  </label><select id="SortBy" name="SortBy" onChange="SwitchCourtSort(this.value)"><option value="CN" selected="true">
+            Case Number
+          </option><option value="DT">
+            Date and Time
+          </option><option value="DN">
+            Defendant Name
+          </option><option value="HT">
+            Hearing Type
+          </option><option value="JN">
+            Judicial Officer Name
+          </option><option value="PN">
+            Plaintiff Name
+          </option></select></td></tr><tr><td nowrap="true"> </td><td nowrap="true"> </td><td nowrap="true"> </td><td nowrap="true"><b>Date</b></td></tr><tr><td nowrap="true"><b>Case Number</b></td><td nowrap="true"></td><td nowrap="true"><b>Judicial Officer</b></td><td nowrap="true"><b>Time</b></td></tr><tr><th class="ssSearchResultHeaderBottom" nowrap="true">Type</th><th class="ssSearchResultHeaderBottom" nowrap="true">Style</th><th class="ssSearchResultHeaderBottom" nowrap="true">Physical Location</th><th class="ssSearchResultHeaderBottom" nowrap="true">Hearing Type</th></tr></table></td></tr></table>
+  </body>
+  
+  <script language="javascript">
+    function SwitchCourtSort(sSortType)
+    {
+      // Set sort type to form element
+      document.getElementById("SortType").value = sSortType;
+      
+      SearchParameters.submit();
+      return true;
+    }
+
+  </script>
+</html>
