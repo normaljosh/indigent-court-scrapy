@@ -25,7 +25,8 @@ def fake_response_from_file(file_name, url=None):
 
     response = HtmlResponse(url=url,
         request=request,
-        body=file_content, encoding='utf-8')
+        body=file_content,
+        encoding='utf-8')
     return response
 
 @pytest.fixture(scope="class")

@@ -95,18 +95,14 @@ class HaysSpider(scrapy.Spider):
         viewstate = response.css("#__VIEWSTATE").attrib["value"]
 
         end_date = dt.datetime.today()
-        start_date = end_date - dt.timedelta(days=7)
+        start_date = end_date - dt.timedelta(days=2)
         jo_id="48277"
 
         start_string = start_date.strftime("%-m/%-d/%Y")
         end_string = end_date.strftime("%-m/%-d/%Y")
 
         formdata = self.mk_cal_results_form_data(
-            start_string, end_string, jo_id=jo_id, viewstate=viewstate
-        )
-
-        filename_for_search_result = self.get_filename_for_search_result(
-            start_date, end_date, jo_id
+            start_string, start_string, jo_id=jo_id, viewstate=viewstate
         )
 
         yield scrapy.FormRequest.from_response(
