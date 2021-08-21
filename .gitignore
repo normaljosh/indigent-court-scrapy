@@ -3,5 +3,6 @@
 .pytest_cache/
 .vscode/
 *__pycache__*
+case_data/
 venv/
 venvscrapy/

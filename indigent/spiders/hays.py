@@ -96,13 +96,13 @@ class HaysSpider(scrapy.Spider):
 
         today = dt.datetime.today()
 
-        for daysago in range(1):
+        for daysago in range(1, 2):
             date_string = dt.datetime.strftime(
                 today - dt.timedelta(days=daysago), format="%-m/%-d/%Y"
             )
 
             formdata = self.mk_cal_results_form_data(
-                date_string, date_string, jo_id="55054", viewstate=viewstate
+                date_string, date_string, jo_id="48277", viewstate=viewstate
             )
 
             yield scrapy.FormRequest.from_response(
