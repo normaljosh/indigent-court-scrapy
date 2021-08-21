@@ -94,25 +94,33 @@ class HaysSpider(scrapy.Spider):
     def use_search_form(self, response):
         viewstate = response.css("#__VIEWSTATE").attrib["value"]
 
-        today = dt.datetime.today()
+        end_date = dt.datetime.today()
+        start_date = end_date - dt.timedelta(days=7)
+        jo_id="48277"
 
-        for daysago in range(1, 2):
-            date_string = dt.datetime.strftime(
-                today - dt.timedelta(days=daysago), format="%-m/%-d/%Y"
-            )
+        start_string = start_date.strftime("%-m/%-d/%Y")
+        end_string = end_date.strftime("%-m/%-d/%Y")
 
-            formdata = self.mk_cal_results_form_data(
-                date_string, date_string, jo_id="48277", viewstate=viewstate
-            )
+        formdata = self.mk_cal_results_form_data(
+            start_string, end_string, jo_id=jo_id, viewstate=viewstate
+        )
 
-            yield scrapy.FormRequest.from_response(
-                response=response,
-                formdata=formdata,
-                callback=self.parse,
-                cb_kwargs={"date_string": date_string},
-            )
+        filename_for_search_result = self.get_filename_for_search_result(
+            start_date, end_date, jo_id
+        )
 
-    def parse(self, response, date_string):
+        yield scrapy.FormRequest.from_response(
+            response=response,
+            formdata=formdata,
+            callback=self.parse_search_results,
+            cb_kwargs={"start_date": start_date, "jo_id": jo_id},
+        )
+
+    def get_filename_for_search_result(self, start_date: dt.date, jo_id: str):
+        """Get filename where search result HTML page can be saved."""
+        return f"{jo_id}-{start_date.strftime('%Y-%m-%d')}.html"
+
+    def parse_search_results(self, response, start_date: dt.datetime, jo_id: str):
         """
         Just save the search result page as a file.
 
@@ -121,10 +129,8 @@ class HaysSpider(scrapy.Spider):
         """
         if not os.path.exists("case_data"):
             os.mkdir("case_data")
-        date_for_filename = dt.datetime.strptime(date_string, "%m/%d/%Y").strftime(
-            "%Y-%m-%d"
-        )
-        file_name = f"{date_for_filename}.html"
+
+        file_name = self.get_filename_for_search_result(start_date, jo_id)
         data_file_path = os.path.join("case_data", file_name)
         with open(data_file_path, "wb") as f:
             f.write(response.body)

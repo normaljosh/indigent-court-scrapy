@@ -1,7 +1,7 @@
 import os
 
 import pytest
-from scrapy.http import Request, Response
+from scrapy.http import Request, HtmlResponse
 
 
 def fake_response_from_file(file_name, url=None):
@@ -23,10 +23,9 @@ def fake_response_from_file(file_name, url=None):
         file_path = file_name
     file_content = open(file_path, 'r').read()
 
-    response = Response(url=url,
+    response = HtmlResponse(url=url,
         request=request,
-        body=file_content)
-    response.encoding = 'utf-8'
+        body=file_content, encoding='utf-8')
     return response
 
 @pytest.fixture(scope="class")
