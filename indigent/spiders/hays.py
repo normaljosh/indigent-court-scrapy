@@ -1,5 +1,6 @@
 import datetime as dt
 import os
+from typing import List, Tuple
 from urllib.parse import urlencode
 
 import scrapy
@@ -89,14 +90,17 @@ class HaysSpider(scrapy.Spider):
             "NodeDesc": "All%20Courts",
         }
         url = f"{self.calendar_page_url}?{urlencode(calendar_query)}"
-        return Request(url=url, callback=self.use_search_form,)
+        return Request(
+            url=url,
+            callback=self.use_search_form,
+        )
 
     def use_search_form(self, response):
         viewstate = response.css("#__VIEWSTATE").attrib["value"]
 
         end_date = dt.datetime.today()
         start_date = end_date - dt.timedelta(days=2)
-        jo_id="48277"
+        jo_id = "48277"
 
         start_string = start_date.strftime("%-m/%-d/%Y")
         end_string = end_date.strftime("%-m/%-d/%Y")
@@ -116,15 +120,22 @@ class HaysSpider(scrapy.Spider):
         """Get filename where search result HTML page can be saved."""
         return f"{jo_id}-{start_date.strftime('%Y-%m-%d')}.html"
 
-    def parse_search_results(self, response, start_date: dt.datetime, jo_id: str):
+    def get_links_from_search_page(self, response) -> List[Tuple[str, str]]:
+        result = []
+        for link in response.css("a[href*=CaseDetail]"):
+            if link:
+                result.append(
+                    (self.main_page_url + link.attrib["href"], link.css("::text").get())
+                )
+        return result
+
+    def parse_search_results(self, response, start_date: dt.date, jo_id: str):
         """
         Just save the search result page as a file.
 
         To be replaced by a function that follows the links to the cases,
         with another callback function that parses the case pages.
         """
-        if not os.path.exists("case_data"):
-            os.mkdir("case_data")
 
         file_name = self.get_filename_for_search_result(start_date, jo_id)
         data_file_path = os.path.join("case_data", file_name)
