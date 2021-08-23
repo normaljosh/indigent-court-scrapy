@@ -1,6 +1,7 @@
 *.egg-info
 .mypy_cache/
 .pytest_cache/
+.scrapy/
 .vscode/
 *__pycache__*
 case_data/
