@@ -17,13 +17,10 @@ class TestCrawlHays:
     def test_get_links_from_search_page(self, fake_page):
         spider = HaysSpider()
         search_page = fake_page["search"]
-        links = spider.get_links_from_search_page(search_page)
+        links = list(spider.get_links_from_search_page(search_page))
+        prefix = "http://public.co.hays.tx.us/CaseDetail.aspx?"
         assert len(links) == 2
-        assert links[0] == (
-            "http://public.co.hays.tx.us/CaseDetail.aspx?CaseID=13114245",
-            "19-4027CR-2",
-        )
-        assert links[1] == (
-            "http://public.co.hays.tx.us/CaseDetail.aspx?CaseID=13029066",
-            "17-4318CR-2",
-        )
+        assert links[0].url == prefix + "CaseID=13114245"
+        assert links[0].case_id == "19-4027CR-2"
+        assert links[1].url == prefix + "CaseID=13029066"
+        assert links[1].case_id == "17-4318CR-2"

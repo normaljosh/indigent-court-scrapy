@@ -1,10 +1,12 @@
 import datetime as dt
 import os
-from typing import List, Tuple
+from typing import Iterator
 from urllib.parse import urlencode
 
 import scrapy
 from scrapy.http import FormRequest, Request, HtmlResponse
+
+from indigent.items import CaseIDWithURL
 
 
 class HaysSpider(scrapy.Spider):
@@ -120,14 +122,13 @@ class HaysSpider(scrapy.Spider):
         """Get filename where search result HTML page can be saved."""
         return f"{jo_id}-{start_date.strftime('%Y-%m-%d')}.html"
 
-    def get_links_from_search_page(self, response) -> List[Tuple[str, str]]:
-        result = []
+    def get_links_from_search_page(self, response) -> Iterator[CaseIDWithURL]:
         for link in response.css("a[href*=CaseDetail]"):
             if link:
-                result.append(
-                    (self.main_page_url + link.attrib["href"], link.css("::text").get())
+                yield CaseIDWithURL(
+                    case_id=link.css("::text").get(),
+                    url=self.main_page_url + link.attrib["href"],
                 )
-        return result
 
     def parse_search_results(self, response, start_date: dt.date, jo_id: str):
         """
