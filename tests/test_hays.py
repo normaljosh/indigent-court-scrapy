@@ -53,6 +53,16 @@ class TestCrawlHays:
         thc_page = fake_page["thc"]
         assert spider.get_disposition_date(thc_page) == dt.date(2012, 8, 1)
 
+    def test_get_counsel_status(self, fake_page):
+        spider = HaysSpider()
+        thc_page = fake_page["thc"]
+        assert spider.get_counsel_status(thc_page) == "retained"
+
+    def test_get_counsel_name(self, fake_page):
+        spider = HaysSpider()
+        thc_page = fake_page["thc"]
+        assert spider.get_defense_counsel_name(thc_page) == "David Watts"
+
     def test_parse_case(self, fake_page):
         spider = HaysSpider()
         thc_page = fake_page["thc"]

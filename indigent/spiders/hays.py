@@ -171,11 +171,31 @@ class HaysSpider(scrapy.Spider):
             return dt.datetime.strptime(last_date, "%m/%d/%Y").date()
         return None
 
-    def parse(self, response, case_id: str):
+    def get_defense_counsel_name(self, response) -> Optional[str]:
+        italics_elem = response.css("i")
+        if italics_elem:
+            return italics_elem.xpath("preceding-sibling::b/text()").get()
+        return None
+
+    def get_counsel_status(self, response) -> str:
+        italics_strings = response.css("i::text").getall()
+        cleaned_strings = [text.strip().lower() for text in italics_strings]
+        if "retained" in cleaned_strings:
+            return "retained"
+        elif "appointed" in cleaned_strings:
+            return "appointed"
+        return ""
+
+    def parse(self, response, case_id: str) -> CaseItem:
         data_file_path = os.path.join("register_pages", self.name, f"{case_id}.html")
         with open(data_file_path, "wb") as f:
             f.write(response.body)
         self.log(f"Saved file {case_id}.html")
 
-        earliest_date = self.get_earliest_event_date(response)
-        return CaseItem(case_id=case_id, earliest_event_date=earliest_date)
+        return CaseItem(
+            case_id=case_id,
+            earliest_event_date=self.get_earliest_event_date(response),
+            disposition_date=self.get_disposition_date(response),
+            counsel_status=self.get_counsel_status(response),
+            defense_counsel_name=self.get_defense_counsel_name(response),
+        )

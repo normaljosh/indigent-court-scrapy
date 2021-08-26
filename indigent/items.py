@@ -33,7 +33,7 @@ class ChargeItem:
 class CaseItem:
     case_id: str
     earliest_event_date: Optional[dt.date]
-    disposition_date: dt.date
+    disposition_date: Optional[dt.date]
     counsel_status: str
     counsel_name: str
     charges: List[ChargeItem]
