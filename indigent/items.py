@@ -5,7 +5,7 @@
 
 from dataclasses import dataclass
 import datetime as dt
-from typing import List
+from typing import List, Optional
 
 
 import scrapy
@@ -32,7 +32,7 @@ class ChargeItem:
 @dataclass
 class CaseItem:
     case_id: str
-    earliest_event: dt.date
+    earliest_event_date: Optional[dt.date]
     disposition_date: dt.date
     counsel_status: str
     counsel_name: str

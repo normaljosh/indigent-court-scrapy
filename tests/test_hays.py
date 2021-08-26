@@ -46,12 +46,17 @@ class TestCrawlHays:
     def test_get_earliest_case_event(self, fake_page):
         spider = HaysSpider()
         thc_page = fake_page["thc"]
-        assert spider.get_earliest_event(thc_page) == dt.date(2011, 10, 12)
+        assert spider.get_earliest_event_date(thc_page) == dt.date(2011, 10, 12)
+
+    def test_get_disposition_date(self, fake_page):
+        spider = HaysSpider()
+        thc_page = fake_page["thc"]
+        assert spider.get_disposition_date(thc_page) == dt.date(2012, 8, 1)
 
     def test_parse_case(self, fake_page):
         spider = HaysSpider()
         thc_page = fake_page["thc"]
-        parsed = spider.parse(thc_page)
+        parsed = spider.parse(thc_page, case_id="19-4027CR-2")
         assert parsed.case_id == "19-4027CR-2"
         assert parsed.earliest_event == dt.date(2011, 10, 12)
         assert parsed.disposition_date == dt.date(2012, 8, 1)

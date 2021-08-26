@@ -156,15 +156,19 @@ class HaysSpider(scrapy.Spider):
                 url=case.url, callback=self.parse, cb_kwargs={"case_id": case.case_id}
             )
 
-    def get_earliest_event(self, response) -> Optional[dt.datetime]:
-        """
-        Get the earliest date from the OTHER EVENTS AND HEARINGS table.
-        """
-        for row in response.css("table.CaseHistory tr"):
-            if row.css("td.CaseHistoryDate"):
-                date_string = row.css("td.CaseHistoryDate::text").get()
-                date = dt.datetime.strptime(date_string, "%m/%d/%Y")
-                return date
+    def get_earliest_event_date(self, response) -> Optional[dt.date]:
+        """Get earliest date from the OTHER EVENTS AND HEARINGS table."""
+        date_string = response.css('th[id^="RCDER"]::text').get()
+        if date_string:
+            return dt.datetime.strptime(date_string, "%m/%d/%Y").date()
+        return None
+
+    def get_disposition_date(self, response) -> Optional[dt.date]:
+        """Get date from the DISPOSITION table."""
+        date_strings = response.css('th[id^="RCDCD"]::text').getall()
+        if date_strings:
+            last_date = date_strings[-1]
+            return dt.datetime.strptime(last_date, "%m/%d/%Y").date()
         return None
 
     def parse(self, response, case_id: str):
@@ -173,5 +177,5 @@ class HaysSpider(scrapy.Spider):
             f.write(response.body)
         self.log(f"Saved file {case_id}.html")
 
-        earliest_event = self.get_earliest_event(response)
-        return CaseItem(case_id=case_id, earliest_event=earliest_event)
+        earliest_date = self.get_earliest_event_date(response)
+        return CaseItem(case_id=case_id, earliest_event_date=earliest_date)
