@@ -3,6 +3,13 @@ indigent-court-scrapy
 
 A scraping experiment for an Open Austin data project about appointed counsel in Texas courts.
 
+.. image:: https://coveralls.io/repos/github/open-austin/indigent-court-scrapy/badge.svg?branch=main
+:target: https://coveralls.io/github/open-austin/indigent-court-scrapy?branch=main
+
+.. image:: https://github.com/open-austin/indigent-court-scrapy/actions/workflows/python-package.yml/badge.svg
+    :target: https://github.com/mscarey/indigent-court-scrapy/actions
+    :alt: GitHub Actions Workflow
+
 The goal of the project is to support research by
 the `Texas Indigent Defense Commission <tidc.texas.gov>`_ about the caseloads and effectiveness of appointed
 defense attorneys.

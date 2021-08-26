@@ -4,6 +4,7 @@
 .scrapy/
 .vscode/
 *__pycache__*
+cases.json
 register_pages/
 search_results/
 venv/
