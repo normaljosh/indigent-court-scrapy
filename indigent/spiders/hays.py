@@ -137,19 +137,16 @@ class HaysSpider(scrapy.Spider):
                         url=self.main_page_url + link.attrib["href"],
                     )
 
-    def parse_search_results(self, response, start_date: dt.date, jo_id: str):
-        """
-        Just save the search result page as a file.
+    def parse_search_results(
+        self, response, start_date: dt.date, jo_id: str, save_file: bool = False
+    ):
 
-        To be replaced by a function that follows the links to the cases,
-        with another callback function that parses the case pages.
-        """
-
-        file_name = self.get_filename_for_search_result(start_date, jo_id)
-        data_file_path = os.path.join("search_results", self.name, file_name)
-        with open(data_file_path, "wb") as f:
-            f.write(response.body)
-        self.log(f"Saved file {file_name}")
+        if save_file:
+            file_name = self.get_filename_for_search_result(start_date, jo_id)
+            data_file_path = os.path.join("search_results", self.name, file_name)
+            with open(data_file_path, "wb") as f:
+                f.write(response.body)
+            self.log(f"Saved file {file_name}")
 
         for case in self.get_links_from_search_page(response):
             yield Request(
@@ -200,11 +197,14 @@ class HaysSpider(scrapy.Spider):
                         date=dt.datetime.strptime(filtered[4], "%m/%d/%Y").date(),
                     )
 
-    def parse(self, response, case_id: str) -> CaseItem:
-        data_file_path = os.path.join("register_pages", self.name, f"{case_id}.html")
-        with open(data_file_path, "wb") as f:
-            f.write(response.body)
-        self.log(f"Saved file {case_id}.html")
+    def parse(self, response, case_id: str, save_file: bool = False) -> CaseItem:
+        if save_file:
+            data_file_path = os.path.join(
+                "register_pages", self.name, f"{case_id}.html"
+            )
+            with open(data_file_path, "wb") as f:
+                f.write(response.body)
+            self.log(f"Saved file {case_id}.html")
 
         return CaseItem(
             case_id=case_id,
