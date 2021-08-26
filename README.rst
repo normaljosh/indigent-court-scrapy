@@ -8,7 +8,7 @@ A scraping experiment for an Open Austin data project about appointed counsel in
     :alt: Coveralls Code Coverage
 
 .. image:: https://github.com/open-austin/indigent-court-scrapy/actions/workflows/python-package.yml/badge.svg
-    :target: https://github.com/mscarey/indigent-court-scrapy/actions
+    :target: https://github.com/open-austin/indigent-court-scrapy/actions
     :alt: GitHub Actions Workflow
 
 The goal of the project is to support research by
