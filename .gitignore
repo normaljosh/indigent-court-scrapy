@@ -4,6 +4,7 @@
 .scrapy/
 .vscode/
 *__pycache__*
-case_data/
+register_pages/
+search_results/
 venv/
 venvscrapy/

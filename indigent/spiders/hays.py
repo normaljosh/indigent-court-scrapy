@@ -1,12 +1,12 @@
 import datetime as dt
 import os
-from typing import Iterator
+from typing import Iterator, Optional, Set
 from urllib.parse import urlencode
 
 import scrapy
 from scrapy.http import FormRequest, Request, HtmlResponse
 
-from indigent.items import CaseIDWithURL
+from indigent.items import CaseIDWithURL, CaseItem, ChargeItem
 
 
 class HaysSpider(scrapy.Spider):
@@ -15,16 +15,20 @@ class HaysSpider(scrapy.Spider):
     calendar_page_url = "http://public.co.hays.tx.us/Search.aspx"
 
     judicial_officers = {
-        "visiting_officer": "37809",
-        "Boyer_Bruce": "39607",
-        "Johnson_Chris": "48277",
-        "Robison_Jack": "6140",
-        "Sherri_Tibbe": "55054",
-        "Henry_Bill": "25322",
-        "Steel_Gary": "6142",
-        "Updegrove_Robert": "38628",
-        "Zelhart_Tacie": "48274",
+        "visiting officer": "37809",
+        "Boyer, Bruce": "39607",
+        "Johnson, Chris": "48277",
+        "Robison, Jack": "6140",
+        "Sherri, Tibbe": "55054",
+        "Henry, Bill": "25322",
+        "Steel, Gary": "6142",
+        "Updegrove, Robert": "38628",
+        "Zelhart, Tacie": "48274",
     }
+
+    def __init__(self, category=None, *args, **kwargs):
+        super(HaysSpider, self).__init__(*args, **kwargs)
+        self.explored_cases: Set[str] = set()
 
     @classmethod
     def mk_cal_results_form_data(
@@ -101,8 +105,8 @@ class HaysSpider(scrapy.Spider):
         viewstate = response.css("#__VIEWSTATE").attrib["value"]
 
         end_date = dt.datetime.today()
-        start_date = end_date - dt.timedelta(days=2)
-        jo_id = "48277"
+        start_date = dt.datetime(2021, 10, 26)
+        jo_id = "39607"
 
         start_string = start_date.strftime("%-m/%-d/%Y")
         end_string = end_date.strftime("%-m/%-d/%Y")
@@ -125,10 +129,13 @@ class HaysSpider(scrapy.Spider):
     def get_links_from_search_page(self, response) -> Iterator[CaseIDWithURL]:
         for link in response.css("a[href*=CaseDetail]"):
             if link:
-                yield CaseIDWithURL(
-                    case_id=link.css("::text").get(),
-                    url=self.main_page_url + link.attrib["href"],
-                )
+                case_id = link.css("::text").get()
+                if case_id not in self.explored_cases:
+                    self.explored_cases.add(case_id)
+                    yield CaseIDWithURL(
+                        case_id=case_id,
+                        url=self.main_page_url + link.attrib["href"],
+                    )
 
     def parse_search_results(self, response, start_date: dt.date, jo_id: str):
         """
@@ -139,7 +146,32 @@ class HaysSpider(scrapy.Spider):
         """
 
         file_name = self.get_filename_for_search_result(start_date, jo_id)
-        data_file_path = os.path.join("case_data", file_name)
+        data_file_path = os.path.join("search_results", self.name, file_name)
         with open(data_file_path, "wb") as f:
             f.write(response.body)
         self.log(f"Saved file {file_name}")
+
+        for case in self.get_links_from_search_page(response):
+            yield Request(
+                url=case.url, callback=self.parse, cb_kwargs={"case_id": case.case_id}
+            )
+
+    def get_earliest_event(self, response) -> Optional[dt.datetime]:
+        """
+        Get the earliest date from the OTHER EVENTS AND HEARINGS table.
+        """
+        for row in response.css("table.CaseHistory tr"):
+            if row.css("td.CaseHistoryDate"):
+                date_string = row.css("td.CaseHistoryDate::text").get()
+                date = dt.datetime.strptime(date_string, "%m/%d/%Y")
+                return date
+        return None
+
+    def parse(self, response, case_id: str):
+        data_file_path = os.path.join("register_pages", self.name, f"{case_id}.html")
+        with open(data_file_path, "wb") as f:
+            f.write(response.body)
+        self.log(f"Saved file {case_id}.html")
+
+        earliest_event = self.get_earliest_event(response)
+        return CaseItem(case_id=case_id, earliest_event=earliest_event)
