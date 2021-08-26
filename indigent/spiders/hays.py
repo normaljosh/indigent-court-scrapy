@@ -171,11 +171,11 @@ class HaysSpider(scrapy.Spider):
             return dt.datetime.strptime(last_date, "%m/%d/%Y").date()
         return None
 
-    def get_defense_counsel_name(self, response) -> Optional[str]:
+    def get_defense_counsel_name(self, response) -> str:
         italics_elem = response.css("i")
         if italics_elem:
             return italics_elem.xpath("preceding-sibling::b/text()").get()
-        return None
+        return ""
 
     def get_counsel_status(self, response) -> str:
         italics_strings = response.css("i::text").getall()
@@ -185,6 +185,20 @@ class HaysSpider(scrapy.Spider):
         elif "appointed" in cleaned_strings:
             return "appointed"
         return ""
+
+    def get_charges(self, response) -> Iterator[ChargeItem]:
+        charge_caption = response.xpath("//div[text() = 'Charge Information']")
+        if charge_caption:
+            for charge_row in charge_caption.xpath("../following-sibling::tr"):
+                row_results = charge_row.css("td::text").getall()
+                filtered = [item.strip() for item in row_results if item.strip()]
+                if len(filtered) >= 5:
+                    yield ChargeItem(
+                        name=filtered[1],
+                        statute=filtered[2],
+                        level=filtered[3],
+                        date=dt.datetime.strptime(filtered[4], "%m/%d/%Y").date(),
+                    )
 
     def parse(self, response, case_id: str) -> CaseItem:
         data_file_path = os.path.join("register_pages", self.name, f"{case_id}.html")
@@ -198,4 +212,5 @@ class HaysSpider(scrapy.Spider):
             disposition_date=self.get_disposition_date(response),
             counsel_status=self.get_counsel_status(response),
             defense_counsel_name=self.get_defense_counsel_name(response),
+            charges=list(self.get_charges(response)),
         )

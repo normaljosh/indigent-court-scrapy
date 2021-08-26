@@ -35,5 +35,5 @@ class CaseItem:
     earliest_event_date: Optional[dt.date]
     disposition_date: Optional[dt.date]
     counsel_status: str
-    counsel_name: str
+    defense_counsel_name: str
     charges: List[ChargeItem]

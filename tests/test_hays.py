@@ -63,15 +63,25 @@ class TestCrawlHays:
         thc_page = fake_page["thc"]
         assert spider.get_defense_counsel_name(thc_page) == "David Watts"
 
+    def test_get_charges(self, fake_page):
+        spider = HaysSpider()
+        thc_page = fake_page["thc"]
+        charges = list(spider.get_charges(thc_page))
+        assert len(charges) == 1
+        assert charges[0].name.startswith("POCS")
+        assert charges[0].date == dt.date(2011, 10, 11)
+        assert charges[0].statute == "481.116(c)"
+        assert charges[0].level == "Third Degree Felony"
+
     def test_parse_case(self, fake_page):
         spider = HaysSpider()
         thc_page = fake_page["thc"]
         parsed = spider.parse(thc_page, case_id="19-4027CR-2")
         assert parsed.case_id == "19-4027CR-2"
-        assert parsed.earliest_event == dt.date(2011, 10, 12)
+        assert parsed.earliest_event_date == dt.date(2011, 10, 12)
         assert parsed.disposition_date == dt.date(2012, 8, 1)
         assert parsed.counsel_status == "retained"
-        assert parsed.counsel_name == "David Watts"
+        assert parsed.defense_counsel_name == "David Watts"
         assert (
             parsed.charges[0].name
             == "POCS-TETRAHYDROCANNABINOL-ONE GRAM OR MORE BUT LESS THAN FOUR GRAMS"
