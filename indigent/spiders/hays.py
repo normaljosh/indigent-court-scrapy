@@ -14,32 +14,31 @@ class HaysSpider(scrapy.Spider):
     main_page_url = "http://public.co.hays.tx.us/"
     calendar_page_url = "http://public.co.hays.tx.us/Search.aspx"
 
-    judicial_officers = {
-        "visiting officer": "37809",
-        "Boyer, Bruce": "39607",
-        "Johnson, Chris": "48277",
-        "Robison, Jack": "6140",
-        "Sherri, Tibbe": "55054",
-        "Henry, Bill": "25322",
-        "Steel, Gary": "6142",
-        "Updegrove, Robert": "38628",
-        "Zelhart, Tacie": "48274",
-    }
-
-    def __init__(self, category=None, *args, **kwargs):
+    judicial_officers = [
+        [
+        "VISITING, JUDGE",
+        "Boyer, Bruce",
+        "Johnson, Chris",
+        "Robison, Jack",
+        "Tibbe, Sherri K.",
+        "Henry, William R",
+        "Steel, Gary L.",
+        "Updegrove, Robert",
+        "Zelhart, Tacie",
+    ]
+    ]
+    def __init__(self, category=None, officers=judicial_officers, *args, **kwargs):
         super(HaysSpider, self).__init__(*args, **kwargs)
         self.explored_cases: Set[str] = set()
 
     @classmethod
     def mk_cal_results_form_data(
-        cls, startDate: str, endDate: str, jo_id, viewstate: str
+        cls, startDate: str, endDate: str, jo_id, hidden_values: dict
     ):
-        return {
+
+        form_data = {
             "__EVENTTARGET": "",
             "__EVENTARGUMENT": "",
-            "__VIEWSTATE": viewstate,
-            "__VIEWSTATEGENERATOR": "BBBC20B8",
-            "__EVENTVALIDATION": "/wEWAgKEib6eCQKYxoa5CABRE1bdUnTyMmdE4n0IKj4cWw4t",
             "SearchBy": "3",
             "ExactName": "on",
             "CaseSearchMode": "CaseNumber",
@@ -84,6 +83,9 @@ class HaysSpider(scrapy.Spider):
             "HearingTypeIDs": "",
         }
 
+        form_data.update(hidden_values)
+        return form_data
+
     def start_requests(self):
         return [
             scrapy.FormRequest(url=self.main_page_url, callback=self.go_to_calendar)
@@ -102,17 +104,26 @@ class HaysSpider(scrapy.Spider):
         )
 
     def use_search_form(self, response):
-        viewstate = response.css("#__VIEWSTATE").attrib["value"]
+
+        #Get hidden values needed to access search
+        hidden_values = {
+            hidden.attrib['name'] : hidden.attrib['value']
+            for hidden in response.css('input[type="hidden"]')
+        }
 
         end_date = dt.datetime.today()
         start_date = dt.datetime(2021, 10, 26)
         jo_id = "39607"
 
-        start_string = start_date.strftime("%-m/%-d/%Y")
-        end_string = end_date.strftime("%-m/%-d/%Y")
+        try:
+            start_string = start_date.strftime("%-m/%-d/%Y")
+            end_string = end_date.strftime("%-m/%-d/%Y")
+        except ValueError: 
+            start_string = start_date.strftime("%#m/%#d/%Y")
+            end_string = end_date.strftime("%#m/%#d/%Y") 
 
         formdata = self.mk_cal_results_form_data(
-            start_string, start_string, jo_id=jo_id, viewstate=viewstate
+            start_string, start_string, jo_id=jo_id, hidden_values=hidden_values
         )
 
         yield scrapy.FormRequest.from_response(
