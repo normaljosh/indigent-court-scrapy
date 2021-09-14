@@ -11,7 +11,10 @@ BOT_NAME = "indigent"
 
 SPIDER_MODULES = ["indigent.spiders"]
 NEWSPIDER_MODULE = "indigent.spiders"
-
+# AWS_ACCESS_KEY_ID = ''
+# AWS_SECRET_ACCESS_KEY = ''
+# FEED_FORMAT = 'json'
+# FEED_URI = 's3://indigent-defense/cases.json'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 USER_AGENT = "Texas Fair Defense Project (+https://www.fairdefense.org/)"
