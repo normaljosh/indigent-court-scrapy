@@ -111,6 +111,11 @@ class HaysSpider(scrapy.Spider):
             for hidden in response.css('input[type="hidden"]')
         }
 
+        #Get all judicial officers and their ids
+        judicial_officer_names = response.xpath('//select[@labelname="Judicial Officer:"]/option/text()').getall()
+        judicial_officer_ids = response.xpath('//select[@labelname="Judicial Officer:"]/option/@value').getall()
+        judicial_officer_map = dict(zip(judicial_officer_names,judicial_officer_ids))
+
         end_date = dt.datetime.today()
         start_date = dt.datetime(2021, 10, 26)
         jo_id = "39607"
