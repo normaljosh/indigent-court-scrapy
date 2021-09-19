@@ -15,7 +15,6 @@ class HaysSpider(scrapy.Spider):
     calendar_page_url = "http://public.co.hays.tx.us/Search.aspx"
 
     judicial_officers = [
-        [
         "VISITING, JUDGE",
         "Boyer, Bruce",
         "Johnson, Chris",
@@ -25,7 +24,6 @@ class HaysSpider(scrapy.Spider):
         "Steel, Gary L.",
         "Updegrove, Robert",
         "Zelhart, Tacie",
-    ]
     ]
     def __init__(self, category=None, officers=judicial_officers, *args, **kwargs):
         super(HaysSpider, self).__init__(*args, **kwargs)
@@ -93,7 +91,7 @@ class HaysSpider(scrapy.Spider):
 
     def go_to_calendar(self, response):
         calendar_query = {
-            "ID": "900",
+            "ID": "900", 
             "NodeID": "100,101,102,103,200,201,202,203,204,6112,400,401,402,403,404,405,406,407,6111,6114",
             "NodeDesc": "All%20Courts",
         }
@@ -116,27 +114,28 @@ class HaysSpider(scrapy.Spider):
         judicial_officer_ids = response.xpath('//select[@labelname="Judicial Officer:"]/option/@value').getall()
         judicial_officer_map = dict(zip(judicial_officer_names,judicial_officer_ids))
 
-        end_date = dt.datetime.today()
-        start_date = dt.datetime(2021, 10, 26)
-        jo_id = "39607"
+        end_date = dt.datetime.today() - dt.timedelta(days=1)
+        start_date = dt.datetime.today() - dt.timedelta(days=10)
 
-        try:
-            start_string = start_date.strftime("%-m/%-d/%Y")
-            end_string = end_date.strftime("%-m/%-d/%Y")
-        except ValueError: 
-            start_string = start_date.strftime("%#m/%#d/%Y")
-            end_string = end_date.strftime("%#m/%#d/%Y") 
+        for jo_name in self.judicial_officers:
+            jo_id = judicial_officer_map[jo_name]
+            try:
+                start_string = start_date.strftime("%-m/%-d/%Y")
+                end_string = end_date.strftime("%-m/%-d/%Y")
+            except ValueError: 
+                start_string = start_date.strftime("%#m/%#d/%Y")
+                end_string = end_date.strftime("%#m/%#d/%Y") 
 
-        formdata = self.mk_cal_results_form_data(
-            start_string, start_string, jo_id=jo_id, hidden_values=hidden_values
-        )
-
-        yield scrapy.FormRequest.from_response(
-            response=response,
-            formdata=formdata,
-            callback=self.parse_search_results,
-            cb_kwargs={"start_date": start_date, "jo_id": jo_id},
-        )
+            formdata = self.mk_cal_results_form_data(
+                start_string, start_string, jo_id=jo_id, hidden_values=hidden_values
+            )
+            print(jo_name)
+            yield scrapy.FormRequest.from_response(
+                response=response,
+                formdata=formdata,
+                callback=self.parse_search_results,
+                cb_kwargs={"start_date": start_date, "jo_id": jo_id},
+            )
 
     def get_filename_for_search_result(self, start_date: dt.date, jo_id: str):
         """Get filename where search result HTML page can be saved."""
