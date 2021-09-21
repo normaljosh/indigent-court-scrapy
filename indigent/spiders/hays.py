@@ -2,7 +2,7 @@ import datetime as dt
 import os
 from typing import Iterator, Optional, Set
 from urllib.parse import urlencode
-
+import json
 import scrapy
 from scrapy.http import FormRequest, Request, HtmlResponse
 
@@ -107,6 +107,7 @@ class HaysSpider(scrapy.Spider):
         hidden_values = {
             hidden.attrib['name'] : hidden.attrib['value']
             for hidden in response.css('input[type="hidden"]')
+            if hidden.attrib['name'][:2] == "__"
         }
 
         #Get all judicial officers and their ids
@@ -115,7 +116,7 @@ class HaysSpider(scrapy.Spider):
         judicial_officer_map = dict(zip(judicial_officer_names,judicial_officer_ids))
 
         end_date = dt.datetime.today() - dt.timedelta(days=1)
-        start_date = dt.datetime.today() - dt.timedelta(days=10)
+        start_date = dt.datetime.today() - dt.timedelta(days=1)
 
         for jo_name in self.judicial_officers:
             jo_id = judicial_officer_map[jo_name]
@@ -127,9 +128,8 @@ class HaysSpider(scrapy.Spider):
                 end_string = end_date.strftime("%#m/%#d/%Y") 
 
             formdata = self.mk_cal_results_form_data(
-                start_string, start_string, jo_id=jo_id, hidden_values=hidden_values
+                start_string, end_string, jo_id=jo_id, hidden_values=hidden_values
             )
-            print(jo_name)
             yield scrapy.FormRequest.from_response(
                 response=response,
                 formdata=formdata,
