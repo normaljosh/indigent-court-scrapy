@@ -116,7 +116,7 @@ class HaysSpider(scrapy.Spider):
         judicial_officer_map = dict(zip(judicial_officer_names,judicial_officer_ids))
 
         end_date = dt.datetime.today() - dt.timedelta(days=1)
-        start_date = dt.datetime.today() - dt.timedelta(days=1)
+        start_date = dt.datetime.today() - dt.timedelta(days=3)
 
         for jo_name in self.judicial_officers:
             jo_id = judicial_officer_map[jo_name]
